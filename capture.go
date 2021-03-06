@@ -12,18 +12,6 @@ import (
 	"github.com/google/gopacket/pcap"
 )
 
-// CaptureOptions is a set of generated options variables to use within our capture routine
-// type CaptureOptions struct {
-// 	DevName       string
-// 	useAfpacket   bool
-// 	PcapFile      string
-// 	Filter        string
-// 	Port          uint16
-// 	GcTime        time.Duration
-// 	ResultChannel chan<- captureResult
-// 	Done          chan bool
-// }
-
 func initializeLivePcap(devName, filter string) *pcap.Handle {
 	// Open device
 	handle, err := pcap.OpenLive(devName, 65536, true, pcap.BlockForever)
@@ -67,24 +55,6 @@ func start(DevName string, pbf string) {
 				return
 			}
 			fmt.Println(packet)
-			// case <-options.Done:
-			// 	return
-			// case <-captureStatsTicker:
-			// 	if handle != nil {
-			// 		mystats, err := handle.Stats()
-			// 		if err == nil {
-			// 			pcapStats.PacketsGot = mystats.PacketsReceived
-			// 			pcapStats.PacketsLost = mystats.PacketsDropped
-			// 		} else {
-			// 			pcapStats.PacketsGot = totalCnt
-			// 		}
-			// 	} else {
-			// 		updateAfpacketStats(afhandle)
-			// 	}
-			// 	pcapStats.PacketLossPercent = (float32(pcapStats.PacketsLost) * 100.0 / float32(pcapStats.PacketsGot))
-
-			// case <-printStatsTicker:
-			// 	log.Printf("%+v\n", pcapStats)
 
 		}
 

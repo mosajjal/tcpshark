@@ -4,5 +4,5 @@ go 1.16
 
 require (
 	github.com/google/gopacket v1.1.19
-	github.com/shirou/gopsutil/v3 v3.21.2
+	golang.org/x/sys v0.0.0-20210217105451-b926d437f341 // indirect
 )

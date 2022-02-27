@@ -1,0 +1,31 @@
+name: Publish binaries on Release
+on: 
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+        docker build -t myrepo:latest -f Dockerfile .
+        id=$(docker create myrepo:latest)
+        docker cp $id:/tcpshark /tmp/tcpshark.bin
+        strip --strip-all /tmp/tcpshark.bin
+
+    - name: Upload Linux binary to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: /tmp/tcpshark.bin
+        asset_name: tcpshark-static-musl-linux.bin
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: ""
+

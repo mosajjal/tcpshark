@@ -3,11 +3,11 @@ module github.com/mosajjal/tcpshark
 go 1.17
 
 require (
+	github.com/drael/GOnetstat v0.0.0-20201004132414-bf4a88b0bdab
 	github.com/google/gopacket v1.1.19
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/lunixbochs/struc v0.0.0-20200707160740-784aaebc1d40
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	github.com/weaveworks/procspy v0.0.0-20150706124340-cb970aa190c3
 )
 
 require (

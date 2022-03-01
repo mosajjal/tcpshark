@@ -5,8 +5,10 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
+	"github.com/drael/GOnetstat"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
@@ -14,7 +16,6 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"github.com/lunixbochs/struc"
 	"github.com/shirou/gopsutil/process"
-	"github.com/weaveworks/procspy"
 )
 
 const TcpSharkMagic = 0xA1BFF3D4
@@ -116,15 +117,14 @@ func main() {
 
 		for range time.Tick(time.Second) {
 			plookup := make(map[PacketMetaDataKey]PacketMetaData)
-			cs, err := procspy.Connections(true)
-			if err != nil {
-				log.Println(err)
-			}
-			for c := cs.Next(); c != nil; c = cs.Next() {
-				plookup[PacketMetaDataKey{c.LocalPort, c.RemotePort}] = PacketMetaData{
+			connData := GOnetstat.Tcp()
+			connData = append(connData, GOnetstat.Udp()...)
+			for _, c := range connData {
+				pid, _ := strconv.Atoi(c.Pid)
+				plookup[PacketMetaDataKey{uint16(c.Port), uint16(c.ForeignPort)}] = PacketMetaData{
 					Magic:   TcpSharkMagic,
-					Pid:     uint32(c.Proc.PID),
-					CmdLen:  uint8(len(c.Proc.Name)),
+					Pid:     uint32(pid),
+					CmdLen:  uint8(len(c.Exe)),
 					Cmd:     c.Name,
 					ArgsLen: 0,
 					Args:    "",

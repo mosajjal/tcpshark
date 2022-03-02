@@ -5,10 +5,9 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strconv"
 	"time"
 
-	"github.com/drael/GOnetstat"
+	"github.com/bishopfox/sliver/implant/sliver/netstat"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
@@ -90,7 +89,7 @@ var GeneralOptions struct {
 }
 
 func main() {
-
+	//todo: embed lua and spit it out
 	var parser = flags.NewNamedParser("tcpshark", flags.PassDoubleDash|flags.PrintErrors|flags.HelpFlag)
 	parser.AddGroup("tcpshark", "tcpshark Options", &GeneralOptions)
 	_, err := parser.Parse()
@@ -117,17 +116,25 @@ func main() {
 
 		for range time.Tick(time.Second) {
 			plookup := make(map[PacketMetaDataKey]PacketMetaData)
-			connData := GOnetstat.Tcp()
-			connData = append(connData, GOnetstat.Udp()...)
+			connData, err := netstat.TCPSocks(netstat.NoopFilter)
+			if err != nil {
+				log.Println(err)
+			}
+			u, err := netstat.UDPSocks(netstat.NoopFilter)
+			if err != nil {
+				log.Println(err)
+			}
+			connData = append(connData, u...)
 			for _, c := range connData {
-				pid, _ := strconv.Atoi(c.Pid)
-				plookup[PacketMetaDataKey{uint16(c.Port), uint16(c.ForeignPort)}] = PacketMetaData{
-					Magic:   TcpSharkMagic,
-					Pid:     uint32(pid),
-					CmdLen:  uint8(len(c.Exe)),
-					Cmd:     c.Name,
-					ArgsLen: 0,
-					Args:    "",
+				if c.Process != nil {
+					plookup[PacketMetaDataKey{uint16(c.LocalAddr.Port), uint16(c.RemoteAddr.Port)}] = PacketMetaData{
+						Magic:   TcpSharkMagic,
+						Pid:     uint32(c.Process.Pid),
+						CmdLen:  uint8(len(c.Process.Name)),
+						Cmd:     c.Process.Name,
+						ArgsLen: 0,
+						Args:    "",
+					}
 				}
 			}
 			GlobalProcessLookup = plookup

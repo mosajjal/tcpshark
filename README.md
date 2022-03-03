@@ -15,7 +15,7 @@ The trailer can be parsed via the lua script `tcpshark.lua`, which can be added 
 
 usage:
 
-```sh
+```
 Usage:
   tcpshark [OPTIONS]
 
@@ -25,6 +25,7 @@ tcpshark:
   -f, --bpf=             tcpdump-style BPF filter
   -v, --verbosity=       Verbosity of the metadata: 0 - only pid, 1 - pid and cmd, 2 - pid, cmd and args (default: 1)
   -l, --list-interfaces  List available interfaces and exit
+  -d, --lua-dissector    Print the Lua dissector used in Wireshark
 
 Help Options:
   -h, --help             Show this help message

@@ -214,13 +214,13 @@ func osTCPSocks(accept AcceptFn) ([]SockTabEntry, error) {
 }
 
 func osTCP6Socks(accept AcceptFn) ([]SockTabEntry, error) {
-	return []SockTabEntry{}, nil
+	return osTCPSocks(accept) //todo:fix
 }
 
 func osUDPSocks(accept AcceptFn) ([]SockTabEntry, error) {
-	return []SockTabEntry{}, nil
+	return osTCPSocks(accept)
 }
 
 func osUDP6Socks(accept AcceptFn) ([]SockTabEntry, error) {
-	return []SockTabEntry{}, nil
+	return osTCPSocks(accept) //todo :fix
 }

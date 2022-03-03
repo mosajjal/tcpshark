@@ -82,7 +82,7 @@ func lookupProcess(verbosity uint8, srcPort uint16, dstPort uint16) PacketMetaDa
 }
 
 var GeneralOptions struct {
-	OutFile   flags.Filename `long:"outfile"   short:"o"                 required:"true"  description:"Output pcap file path" `
+	OutFile   flags.Filename `long:"outfile"   short:"o"                 required:"true"  description:"Output pcap file path. Use '-' for stdout" `
 	Interface string         `long:"interface" short:"i"    default:"lo" required:"true"  description:"Interface to use. Only supports Ethernet type packets interfaces. Do not use it on SPANs"`
 	Bpf       string         `long:"bpf"       short:"f"    default:""   required:"false" description:"tcpdump-style BPF filter"`
 	Verbosity uint8          `long:"verbosity" short:"v"    default:"1"  required:"false" description:"Verbosity of the metadata: 0 - only pid, 1 - pid and cmd, 2 - pid, cmd and args"`
@@ -97,17 +97,21 @@ func main() {
 		os.Exit(-1)
 	}
 
-	f, err := os.OpenFile(string(GeneralOptions.OutFile), os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		log.Println(err)
+	var outputHandle *pcapgo.NgWriter
+	if GeneralOptions.OutFile == "-" {
+		outputHandle, err = pcapgo.NewNgWriter(os.Stdout, 1)
+	} else {
+		f, err := os.OpenFile(string(GeneralOptions.OutFile), os.O_RDWR|os.O_CREATE, 0755)
+		if err != nil {
+			log.Println(err)
+		}
+		defer f.Close()
+		outputHandle, err = pcapgo.NewNgWriter(f, 1)
+		if err != nil {
+			panic(err)
+		}
+		//generate a packet
 	}
-	defer f.Close()
-	outputHandle, err := pcapgo.NewNgWriter(f, 1)
-	if err != nil {
-		panic(err)
-	}
-	//generate a packet
-
 	inputHandle := initializeLivePcap(GeneralOptions.Interface, GeneralOptions.Bpf)
 	handleInterrupt()
 

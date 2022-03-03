@@ -126,7 +126,6 @@ func main() {
 			}
 			connData = append(connData, u...)
 			for _, c := range connData {
-				log.Printf("%#v\n", c)
 				if c.Process != nil {
 					plookup[PacketMetaDataKey{uint16(c.LocalAddr.Port), uint16(c.RemoteAddr.Port)}] = PacketMetaData{
 						Magic:   TcpSharkMagic,

@@ -16,16 +16,25 @@ jobs:
       run: |
         docker build -t myrepo:latest -f Dockerfile .
         id=$(docker create myrepo:latest)
-        docker cp $id:/tcpshark /tmp/tcpshark.bin
-        strip --strip-all /tmp/tcpshark.bin
+        docker cp $id:/tmp/tcpshark/tcpshark-linux-amd64.bin /tmp/tcpshark-linux-amd64.bin
+        docker cp $id:/tmp/tcpshark/tcpshark-windows-amd64.exe /tmp/tcpshark-windows-amd64.exe
 
     - name: Upload Linux binary to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: /tmp/tcpshark.bin
+        file: /tmp/tcpshark-linux-amd64.bin
         asset_name: tcpshark-static-musl-linux.bin
         tag: ${{ github.ref }}
         overwrite: true
         body: ""
 
+    - name: Upload Windows binary to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: /tmp/tcpshark-windows-amd64.exe
+        asset_name: tcpshark-windows-amd64.exe
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: ""

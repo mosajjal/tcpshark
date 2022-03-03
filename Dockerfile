@@ -9,9 +9,14 @@ ENV DST="/tmp/tcpshark/"
 ENV REPO="github.com/mosajjal/tcpshark"
 RUN git clone https://${REPO}.git ${DST} --depth 1 \
     && cd ${DST} \
-    && go build --ldflags "-L /usr/lib/libcap.a -linkmode external -extldflags \"-static\"" -o ${DST}/tcpshark
+    && go build --ldflags "-L /usr/lib/libcap.a -linkmode external -extldflags \"-static\"" -o ${DST}/tcpshark-linux-amd64.bin
 
+
+ENV CGO_ENABLED=1
+ENV GOOS=windows
+ENV GOARCH=amd64
+RUN sh -c 'cd ${DST} && go build -o ${DST}/dnsmonster-windows-amd64.exe'
 
 FROM scratch
-COPY --from=0 /tmp/tcpshark/tcpshark /tcpshark
-ENTRYPOINT ["/tcpshark"]
+COPY --from=0 /tmp/tcpshark/tcpshark-linux-amd64.bin /tcpshark-linux.bin
+ENTRYPOINT ["/tcpshark-linux.bin"]

@@ -7,13 +7,13 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/bishopfox/sliver/implant/sliver/netstat"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket/pcapgo"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/lunixbochs/struc"
+	"github.com/mosajjal/tcpshark/netstat"
 	"github.com/shirou/gopsutil/process"
 )
 
@@ -126,6 +126,7 @@ func main() {
 			}
 			connData = append(connData, u...)
 			for _, c := range connData {
+				log.Printf("%#v\n", c)
 				if c.Process != nil {
 					plookup[PacketMetaDataKey{uint16(c.LocalAddr.Port), uint16(c.RemoteAddr.Port)}] = PacketMetaData{
 						Magic:   TcpSharkMagic,

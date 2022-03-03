@@ -15,5 +15,5 @@ RUN git clone https://${REPO}.git ${DST} --depth 1 \
 ENV CGO_ENABLED=1
 ENV GOOS=windows
 ENV GOARCH=amd64
-RUN sh -c 'cd ${DST} && go build -o ${DST}/dnsmonster-windows-amd64.exe'
+RUN sh -c 'cd ${DST} && go build -o ${DST}/tcpshark-windows-amd64.exe'
 

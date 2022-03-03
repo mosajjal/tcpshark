@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	_ "embed"
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -81,11 +84,16 @@ func lookupProcess(verbosity uint8, srcPort uint16, dstPort uint16) PacketMetaDa
 	return localProcess
 }
 
+//go:embed tcpshark.lua
+var tcpsharkLua string
+
 var GeneralOptions struct {
-	OutFile   flags.Filename `long:"outfile"   short:"o"                 required:"true"  description:"Output pcap file path. Use '-' for stdout" `
-	Interface string         `long:"interface" short:"i"    default:"lo" required:"true"  description:"Interface to use. Only supports Ethernet type packets interfaces. Do not use it on SPANs"`
-	Bpf       string         `long:"bpf"       short:"f"    default:""   required:"false" description:"tcpdump-style BPF filter"`
-	Verbosity uint8          `long:"verbosity" short:"v"    default:"1"  required:"false" description:"Verbosity of the metadata: 0 - only pid, 1 - pid and cmd, 2 - pid, cmd and args"`
+	OutFile        flags.Filename `long:"outfile"         short:"o"                 required:"true"  description:"Output pcap file path. Use '-' for stdout" `
+	Interface      string         `long:"interface"       short:"i"    default:"lo" required:"true"  description:"Interface to use. Only supports Ethernet type packets interfaces. Do not use it on SPANs"`
+	Bpf            string         `long:"bpf"             short:"f"    default:""   required:"false" description:"tcpdump-style BPF filter"`
+	Verbosity      uint8          `long:"verbosity"       short:"v"    default:"1"  required:"false" description:"Verbosity of the metadata: 0 - only pid, 1 - pid and cmd, 2 - pid, cmd and args"`
+	ListInterfaces bool           `long:"list-interfaces" short:"l"                 required:"false" description:"List available interfaces and exit"`
+	LuaDissector   bool           `long:"lua-dissector"   short:"d"                 required:"false" description:"Print the Lua dissector used in Wireshark"`
 }
 
 func main() {
@@ -93,6 +101,26 @@ func main() {
 	var parser = flags.NewNamedParser("tcpshark", flags.PassDoubleDash|flags.PrintErrors|flags.HelpFlag)
 	parser.AddGroup("tcpshark", "tcpshark Options", &GeneralOptions)
 	_, err := parser.Parse()
+
+	if GeneralOptions.ListInterfaces {
+		ifaces, err := pcap.FindAllDevs()
+		if err != nil {
+			log.Fatal(err)
+		}
+		s, err := json.MarshalIndent(ifaces, "", "  ")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Use the Name attribute of each interface in the --interface flag")
+		fmt.Println(string(s))
+		os.Exit(0)
+	}
+
+	if GeneralOptions.LuaDissector {
+		fmt.Println(tcpsharkLua)
+		os.Exit(0)
+	}
+
 	if err != nil {
 		os.Exit(-1)
 	}
@@ -100,6 +128,9 @@ func main() {
 	var outputHandle *pcapgo.NgWriter
 	if GeneralOptions.OutFile == "-" {
 		outputHandle, err = pcapgo.NewNgWriter(os.Stdout, 1)
+		if err != nil {
+			panic(err)
+		}
 	} else {
 		f, err := os.OpenFile(string(GeneralOptions.OutFile), os.O_RDWR|os.O_CREATE, 0755)
 		if err != nil {

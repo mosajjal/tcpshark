@@ -17,6 +17,3 @@ ENV GOOS=windows
 ENV GOARCH=amd64
 RUN sh -c 'cd ${DST} && go build -o ${DST}/dnsmonster-windows-amd64.exe'
 
-FROM scratch
-COPY --from=0 /tmp/tcpshark/tcpshark-linux-amd64.bin /tcpshark-linux.bin
-ENTRYPOINT ["/tcpshark-linux.bin"]

@@ -15,9 +15,7 @@ const (
 	lsofBinary    = "lsof"
 )
 
-var (
-	lsofFields = "cn" // parseLSOF() depends on the order
-)
+var lsofFields = "cn" // parseLSOF() depends on the order
 
 var skStates = [...]string{
 	"UNKNOWN",
@@ -180,7 +178,6 @@ func osTCPSocks(accept AcceptFn) ([]SockTabEntry, error) {
 		"-p", "tcp", // only TCP
 	).CombinedOutput()
 	if err != nil {
-		// log.Printf("lsof error: %s", err)
 		return nil, err
 	}
 	connections := parseDarwinNetstat(string(out))
@@ -207,7 +204,6 @@ func osTCPSocks(accept AcceptFn) ([]SockTabEntry, error) {
 				connections[i].Process = &proc
 			}
 		}
-
 	}
 
 	return connections, nil
@@ -222,5 +218,5 @@ func osUDPSocks(accept AcceptFn) ([]SockTabEntry, error) {
 }
 
 func osUDP6Socks(accept AcceptFn) ([]SockTabEntry, error) {
-	return osTCPSocks(accept) //todo :fix
+	return osTCPSocks(accept) // todo :fix
 }

@@ -18,10 +18,10 @@ import (
 	"github.com/shirou/gopsutil/process"
 )
 
-const TcpSharkMagic = 0xA1BFF3D4
+const tcpSharkMagic = 0xA1BFF3D4
 
-// maps source port and dest port to a pid
-var GlobalProcessLookup = make(map[PacketMetaDataKey]PacketMetaData)
+// globalProcessLookup  maps source port and dest port to a pid
+var globalProcessLookup = make(map[packetMetaDataKey]packetMetaData)
 
 func handleInterrupt() {
 	c := make(chan os.Signal, 1)
@@ -39,9 +39,9 @@ func handleInterrupt() {
 	}()
 }
 
-func lookupProcess(verbosity uint8, srcPort uint16, dstPort uint16) PacketMetaData {
-	localProcess := GlobalProcessLookup[PacketMetaDataKey{srcPort, dstPort}]
-	localProcess.Magic = TcpSharkMagic
+func lookupProcess(verbosity uint8, srcPort uint16, dstPort uint16) packetMetaData {
+	localProcess := globalProcessLookup[packetMetaDataKey{srcPort, dstPort}]
+	localProcess.Magic = tcpSharkMagic
 	switch verbosity {
 	case 0:
 		localProcess.CmdLen = 0
@@ -60,7 +60,7 @@ func lookupProcess(verbosity uint8, srcPort uint16, dstPort uint16) PacketMetaDa
 //go:embed tcpshark.lua
 var tcpsharkLua string
 
-var GeneralOptions struct {
+var generalOptions struct {
 	OutFile        flags.Filename `long:"outfile"         short:"o"                 required:"true"  description:"Output pcap file path. Use '-' for stdout" `
 	Interface      string         `long:"interface"       short:"i"    default:"lo" required:"true"  description:"Interface to use. Only supports Ethernet type packets interfaces. Do not use it on SPANs"`
 	Bpf            string         `long:"bpf"             short:"f"    default:""   required:"false" description:"tcpdump-style BPF filter"`
@@ -72,10 +72,10 @@ var GeneralOptions struct {
 func main() {
 	// todo: embed lua and spit it out
 	parser := flags.NewNamedParser("tcpshark", flags.PassDoubleDash|flags.PrintErrors|flags.HelpFlag)
-	parser.AddGroup("tcpshark", "tcpshark Options", &GeneralOptions)
+	parser.AddGroup("tcpshark", "tcpshark Options", &generalOptions)
 	_, err := parser.Parse()
 
-	if GeneralOptions.ListInterfaces {
+	if generalOptions.ListInterfaces {
 		ifaces, err := pcap.FindAllDevs()
 		if err != nil {
 			log.Fatal().Msg(err.Error())
@@ -89,7 +89,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	if GeneralOptions.LuaDissector {
+	if generalOptions.LuaDissector {
 		fmt.Println(tcpsharkLua)
 		os.Exit(0)
 	}
@@ -103,7 +103,7 @@ func main() {
 	// reload the process lookup table every second
 	go func() {
 		for range time.Tick(time.Second) {
-			plookup := make(map[PacketMetaDataKey]PacketMetaData)
+			plookup := make(map[packetMetaDataKey]packetMetaData)
 			connData, err := netstat.TCPSocks(netstat.NoopFilter)
 			if err != nil {
 				log.Fatal().Msg(err.Error())
@@ -115,8 +115,8 @@ func main() {
 			connData = append(connData, u...)
 			for _, c := range connData {
 				if c.Process != nil {
-					plookup[PacketMetaDataKey{uint16(c.LocalAddr.Port), uint16(c.RemoteAddr.Port)}] = PacketMetaData{
-						Magic:   TcpSharkMagic,
+					plookup[packetMetaDataKey{uint16(c.LocalAddr.Port), uint16(c.RemoteAddr.Port)}] = packetMetaData{
+						Magic:   tcpSharkMagic,
 						Pid:     uint32(c.Process.Pid),
 						CmdLen:  uint8(len(c.Process.Name)),
 						Cmd:     c.Process.Name,
@@ -127,7 +127,7 @@ func main() {
 			}
 			log.Info().Msgf("Reloaded process lookup table with %d connections", len(connData))
 
-			GlobalProcessLookup = plookup
+			globalProcessLookup = plookup
 		}
 	}()
 

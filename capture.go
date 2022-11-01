@@ -14,11 +14,11 @@ import (
 	"github.com/lunixbochs/struc"
 )
 
-type PacketMetaDataKey struct {
+type packetMetaDataKey struct {
 	LocalPort, RemotePort uint16
 }
 
-type PacketMetaData struct {
+type packetMetaData struct {
 	Magic   uint32 `struc:"int32"`
 	Pid     uint32 `struc:"uint32"`
 	CmdLen  uint8  `struc:"uint8,sizeof=Cmd"` // max Cmd is 255 chars
@@ -49,14 +49,14 @@ func initializeLivePcap(devName, filter string) *pcap.Handle {
 func capture() {
 	// set up inpput handle
 	var outputHandle *pcapgo.NgWriter
-	if GeneralOptions.OutFile == "-" {
+	if generalOptions.OutFile == "-" {
 		var err error
 		outputHandle, err = pcapgo.NewNgWriter(os.Stdout, 1)
 		if err != nil {
 			panic(err)
 		}
 	} else {
-		f, err := os.OpenFile(string(GeneralOptions.OutFile), os.O_RDWR|os.O_CREATE, 0o755)
+		f, err := os.OpenFile(string(generalOptions.OutFile), os.O_RDWR|os.O_CREATE, 0o755)
 		if err != nil {
 			log.Warn().Msg(err.Error())
 		}
@@ -67,7 +67,7 @@ func capture() {
 		}
 		// generate a packet
 	}
-	inputHandle := initializeLivePcap(GeneralOptions.Interface, GeneralOptions.Bpf)
+	inputHandle := initializeLivePcap(generalOptions.Interface, generalOptions.Bpf)
 
 	for {
 		packet, _, err := inputHandle.ReadPacketData()
@@ -86,17 +86,17 @@ func capture() {
 		// subtract oldethelayer from the begining of ethpacket
 		restOfLayers := ethPacket.Layers()[1:]
 		remainder := []byte{}
-		metadata := PacketMetaData{}
+		metadata := packetMetaData{}
 		for _, layer := range restOfLayers {
 			// we can correlate metadata only in TCP or UDP for now
 			remainder = append(remainder, layer.LayerContents()...)
 			if layer.LayerType() == layers.LayerTypeTCP {
 				tcpLayer := layer.(*layers.TCP)
-				metadata = lookupProcess(GeneralOptions.Verbosity, uint16(tcpLayer.SrcPort), uint16(tcpLayer.DstPort))
+				metadata = lookupProcess(generalOptions.Verbosity, uint16(tcpLayer.SrcPort), uint16(tcpLayer.DstPort))
 			}
 			if layer.LayerType() == layers.LayerTypeUDP {
 				udpLayer := layer.(*layers.UDP)
-				metadata = lookupProcess(GeneralOptions.Verbosity, uint16(udpLayer.SrcPort), uint16(udpLayer.DstPort))
+				metadata = lookupProcess(generalOptions.Verbosity, uint16(udpLayer.SrcPort), uint16(udpLayer.DstPort))
 			}
 		}
 		var packetTrailer bytes.Buffer

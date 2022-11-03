@@ -12,7 +12,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/google/gopacket/pcap"
+	"github.com/gopacket/gopacket/pcap"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/mosajjal/tcpshark/netstat"
 	"github.com/shirou/gopsutil/process"

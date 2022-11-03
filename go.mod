@@ -3,7 +3,7 @@ module github.com/mosajjal/tcpshark
 go 1.17
 
 require (
-	github.com/google/gopacket v1.1.19
+	github.com/gopacket/gopacket v0.1.0
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/lunixbochs/struc v0.0.0-20200707160740-784aaebc1d40
 	github.com/rs/zerolog v1.28.0

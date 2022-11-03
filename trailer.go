@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/layers"
+	"github.com/gopacket/gopacket"
+	"github.com/gopacket/gopacket/layers"
 )
 
 // EthernetBroadcast is the broadcast MAC address used by Ethernet.

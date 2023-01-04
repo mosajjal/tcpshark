@@ -49,9 +49,9 @@ func lookupProcess(verbosity uint8, srcPort uint16, dstPort uint16) packetMetaDa
 	case 2:
 		// read cmdline from /proc/pid/cmdline
 		p, _ := process.NewProcess(int32(localProcess.Pid))
-		cmdline, _ := p.Cmdline()
-		localProcess.ArgsLen = uint16(len(cmdline))
-		localProcess.Args = cmdline
+		cmdlineWithArgs, _ := p.Cmdline()
+		localProcess.ArgsLen = uint16(len(cmdlineWithArgs))
+		localProcess.Args = cmdlineWithArgs
 	}
 
 	return localProcess
@@ -70,9 +70,8 @@ var generalOptions struct {
 }
 
 func main() {
-	// todo: embed lua and spit it out
 	parser := flags.NewNamedParser("tcpshark", flags.PassDoubleDash|flags.PrintErrors|flags.HelpFlag)
-	parser.AddGroup("tcpshark", "tcpshark Options", &generalOptions)
+	_, _ = parser.AddGroup("tcpshark", "tcpshark Options", &generalOptions)
 	_, err := parser.Parse()
 
 	if generalOptions.ListInterfaces {
@@ -115,6 +114,7 @@ func main() {
 			connData = append(connData, u...)
 			for _, c := range connData {
 				if c.Process != nil {
+					// the lookup is performed by source port and dest port
 					plookup[packetMetaDataKey{uint16(c.LocalAddr.Port), uint16(c.RemoteAddr.Port)}] = packetMetaData{
 						Magic:   tcpSharkMagic,
 						Pid:     uint32(c.Process.Pid),

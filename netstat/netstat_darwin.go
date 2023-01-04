@@ -1,5 +1,6 @@
 package netstat
 
+// originally from https://github.com/weaveworks/procspy/blob/cb970aa190c374d1e47711dbffb3c2c6e9ef0dd1/lsof.go
 // lsof-executing implementation.
 
 import (
@@ -41,12 +42,11 @@ var skStates = [...]string{
 //
 // For example, this is one process with two listens and one connection:
 //
-//   p13100
-//   cmpd
-//   n[::1]:6600
-//   n127.0.0.1:6600
-//   n[::1]:6600->[::1]:50992
-//
+//	p13100
+//	cmpd
+//	n[::1]:6600
+//	n127.0.0.1:6600
+//	n[::1]:6600->[::1]:50992
 func parseLSOF(out string) (map[string]Process, error) {
 	var (
 		res = map[string]Process{} // Local addr -> Proc

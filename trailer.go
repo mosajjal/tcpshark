@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"net"
 
@@ -30,32 +29,32 @@ type EthernetWithTrailer struct {
 // LayerType returns LayerTypeEthernet
 func (e *EthernetWithTrailer) LayerType() gopacket.LayerType { return layers.LayerTypeEthernet }
 
-func (e *EthernetWithTrailer) linkFlow() gopacket.Flow {
-	return gopacket.NewFlow(layers.EndpointMAC, e.SrcMAC, e.DstMAC)
-}
+// func (e *EthernetWithTrailer) linkFlow() gopacket.Flow {
+// 	return gopacket.NewFlow(layers.EndpointMAC, e.SrcMAC, e.DstMAC)
+// }
 
-func (e *EthernetWithTrailer) decodeFromBytes(data []byte, df gopacket.DecodeFeedback) error {
-	if len(data) < 14 {
-		return errors.New("Ethernet packet too small")
-	}
-	e.DstMAC = net.HardwareAddr(data[0:6])
-	e.SrcMAC = net.HardwareAddr(data[6:12])
-	e.EthernetType = layers.EthernetType(binary.BigEndian.Uint16(data[12:14]))
-	e.BaseLayer = layers.BaseLayer{data[:14], data[14:]}
-	e.Length = 0
-	if e.EthernetType < 0x0600 {
-		e.Length = uint16(e.EthernetType)
-		e.EthernetType = layers.EthernetTypeLLC
-		if cmp := len(e.Payload) - int(e.Length); cmp < 0 {
-			df.SetTruncated()
-		} else if cmp > 0 {
-			// Strip off bytes at the end, since we have too many bytes
-			e.Payload = e.Payload[:len(e.Payload)-cmp]
-		}
-		//	fmt.Println(eth)
-	}
-	return nil
-}
+// func (e *EthernetWithTrailer) decodeFromBytes(data []byte, df gopacket.DecodeFeedback) error {
+// 	if len(data) < 14 {
+// 		return errors.New("Ethernet packet too small")
+// 	}
+// 	e.DstMAC = net.HardwareAddr(data[0:6])
+// 	e.SrcMAC = net.HardwareAddr(data[6:12])
+// 	e.EthernetType = layers.EthernetType(binary.BigEndian.Uint16(data[12:14]))
+// 	e.BaseLayer = layers.BaseLayer{Contents: data[:14], Payload: data[14:]}
+// 	e.Length = 0
+// 	if e.EthernetType < 0x0600 {
+// 		e.Length = uint16(e.EthernetType)
+// 		e.EthernetType = layers.EthernetTypeLLC
+// 		if cmp := len(e.Payload) - int(e.Length); cmp < 0 {
+// 			df.SetTruncated()
+// 		} else if cmp > 0 {
+// 			// Strip off bytes at the end, since we have too many bytes
+// 			e.Payload = e.Payload[:len(e.Payload)-cmp]
+// 		}
+// 		//	fmt.Println(eth)
+// 	}
+// 	return nil
+// }
 
 // SerializeTo writes the serialized form of this layer into the
 // SerializationBuffer, implementing gopacket.SerializableLayer.
@@ -112,12 +111,12 @@ func (e *EthernetWithTrailer) SerializeTo(b gopacket.SerializeBuffer, opts gopac
 	return nil
 }
 
-func (e *EthernetWithTrailer) canDecode() gopacket.LayerClass {
-	return layers.LayerTypeEthernet
-}
+// func (e *EthernetWithTrailer) canDecode() gopacket.LayerClass {
+// 	return layers.LayerTypeEthernet
+// }
 
-func (e *EthernetWithTrailer) nextLayerType() gopacket.LayerType {
-	return e.EthernetType.LayerType()
-}
+// func (e *EthernetWithTrailer) nextLayerType() gopacket.LayerType {
+// 	return e.EthernetType.LayerType()
+// }
 
 var lotsOfZeros [1024]byte

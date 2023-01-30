@@ -3,10 +3,10 @@ module github.com/mosajjal/tcpshark
 go 1.19
 
 require (
-	github.com/gopacket/gopacket v0.1.0
+	github.com/gopacket/gopacket v1.0.0
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/lunixbochs/struc v0.0.0-20200707160740-784aaebc1d40
-	github.com/rs/zerolog v1.28.0
+	github.com/rs/zerolog v1.29.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 )
 

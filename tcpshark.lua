@@ -27,7 +27,7 @@ function tcpshark.dissector(buffer, pinfo, tree)
 
   -- -4: skip the FCS
   local trailer = buffer(iplen+ethernet_header_size ,trailerlength )
-  
+
   -- simple sanity check with the magic number
   local magic = trailer(0, 4):uint()
   if(magic ~= TCPSHARK_MAGIC) then
@@ -35,7 +35,7 @@ function tcpshark.dissector(buffer, pinfo, tree)
   end
 
   local pid = trailer(4, 4):uint()
-  
+
   local subtree = tree:add(tcpshark, buffer(), string.format("Tcpshark, pid: %d",pid))
   subtree:add(fields.pid, pid)
   local cmdLen =  trailer(8, 1):uint()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	// embed is used to include the lua dissector in the binary
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -72,7 +73,9 @@ var generalOptions struct {
 func main() {
 	parser := flags.NewNamedParser("tcpshark", flags.PassDoubleDash|flags.PrintErrors|flags.HelpFlag)
 	_, _ = parser.AddGroup("tcpshark", "tcpshark Options", &generalOptions)
-	_, err := parser.Parse()
+	if _, err := parser.Parse(); err != nil {
+		os.Exit(-1)
+	}
 
 	if generalOptions.ListInterfaces {
 		ifaces, err := pcap.FindAllDevs()
@@ -91,10 +94,6 @@ func main() {
 	if generalOptions.LuaDissector {
 		fmt.Println(tcpsharkLua)
 		os.Exit(0)
-	}
-
-	if err != nil {
-		os.Exit(-1)
 	}
 
 	handleInterrupt()

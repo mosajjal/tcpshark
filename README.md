@@ -2,9 +2,9 @@
 
 `tcpshark` is a tcpdump-like utility, with an extra feature: it stores the process id, the command and the arguments as a trailer for each Ethernet frame. For now, only TCP and UDP Ethernet packets are supported.
 
-Tested on recent versions of Linux, Mac and Windows. 
+Tested on recent versions of Linux, Mac and Windows.
 
-`libpcap` or equivelant (`npcap` for Windows) is required. 
+`libpcap` or equivelant (`npcap` for Windows) is required.
 
 
 ![tcpshark](static/wireshark-shot.png)

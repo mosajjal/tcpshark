@@ -6,7 +6,7 @@ require (
 	github.com/gopacket/gopacket v1.2.0
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/lunixbochs/struc v0.0.0-20200707160740-784aaebc1d40
-	github.com/rs/zerolog v1.32.0
+	github.com/rs/zerolog v1.33.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 )
 
